@@ -1,44 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import API from "../api";
 
 const BookList = () => {
-  const [books, setBooks] = useState([]);
-  const navigate = useNavigate();
+  const [books, setBooks] = useState([]); // State to hold books
+  const [error, setError] = useState(""); // State to hold error messages
 
-  // Fetch all books from the API
+  // Function to fetch books from backend
   const fetchBooks = async () => {
     try {
-      const { data } = await API.get("/books");
-      setBooks(data.books);
-    } catch (error) {
-      console.error("Error fetching books:", error);
+      const response = await API.get("/books"); // Fetch books from backend
+      setBooks(response.data.books); // Set the books data to state
+    } catch (err) {
+      setError("Error fetching books");
+      console.error("Error fetching books:", err); // Log the error
     }
   };
 
-  // Fetch books on component mount
+  // Fetch books when the component mounts
   useEffect(() => {
     fetchBooks();
-  }, []); // Empty dependency array to ensure this runs only once when component mounts
+  }, []);
+
+  if (error) {
+    return <div>{error}</div>; // Show error message if there's an error
+  }
+
+  if (!books.length) {
+    return <div>Loading...</div>; // Show loading state if books haven't loaded yet
+  }
 
   return (
     <div>
-      <h1>Available Books</h1>
-      <Link to="/add-book">
-        <button>Add Book</button>
-      </Link>
+      <h1>Books</h1>
       <ul>
         {books.map((book) => (
           <li key={book._id}>
             <h3>{book.title}</h3>
-            <p>{book.author}</p>
-            <p>{book.genre}</p>
-            <button onClick={() => navigate(`/books/${book._id}`)}>
-              View Details
-            </button>
-            <button onClick={() => navigate(`/edit-book/${book._id}`)}>
-              Edit
-            </button>
+            <p>Author: {book.author}</p>
+            <p>Genre: {book.genre}</p>
+            <p>Status: {book.available ? "Available" : "Borrowed"}</p>
+
+            {/* Link to book details */}
+            <Link to={`/books/${book._id}`}>
+              <button>View Details</button>
+            </Link>
           </li>
         ))}
       </ul>

@@ -1,25 +1,34 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api";
+import API from "../api"; // Ensure API points to your backend
 
-const Register = () => {
+const Register = ({ setIsAuthenticated }) => {
   const [user, setUser] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState(""); // For error messages
+  const [error, setError] = useState(""); // For showing error messages
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await API.post("/auth/register", user);
-      console.log("User registered successfully");
-      alert("User registered successfully!");
-      navigate("/login"); // Redirect to login page after successful registration
+      // Call the API to register the user
+      const response = await API.post("/auth/register", user);
+
+      // Check if the registration was successful
+      if (response.status === 201) {
+        alert("User registered successfully!");
+        setIsAuthenticated(true); // Update authentication state if needed
+        navigate("/login"); // Redirect to login page after registration
+      }
     } catch (error) {
       console.error(
-        "Error registering user:",
+        "Error during registration:",
         error.response?.data || error.message
       );
-      setError(error.response?.data?.message || "Error registering user");
+      // Show error message on frontend
+      setError(
+        error.response?.data?.message ||
+          "Error registering user. Please try again."
+      );
     }
   };
 

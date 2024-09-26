@@ -3,19 +3,26 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // Register User
-exports.registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-
+const registerUser = async (req, res) => {
   try {
-    const user = await User.create({ name, email, password });
-    res.status(201).json({ message: "User registered successfully", user });
+    const { name, email, password } = req.body;
+
+    const newUser = new User({ name, email, password });
+    await newUser.save();
+
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    res.status(400).json({ message: "Error registering user", error });
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+    res
+      .status(500)
+      .json({ message: "Error registering user", error: error.message });
   }
 };
 
 // Login User
-exports.loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -37,3 +44,5 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+module.exports = { registerUser, loginUser };

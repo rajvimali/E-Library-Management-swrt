@@ -1,43 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import Home from "./components/Home";
 import BookList from "./components/BookList";
-import Register from "./components/Register";
-import Login from "./components/Login";
-import AddBookForm from "./components/AddBookForm";
-import EditBookForm from "./components/EditBookForm";
 import BookDetail from "./components/BookDetail";
+import AddBookForm from "./components/AddBookForm"; // For adding/editing books
+import Navbar from "./components/Navbar";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // Check if the user is authenticated by verifying if the token exists
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   return (
     <Router>
-      <Navbar
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-      />
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<BookList />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/login"
-            element={<Login setIsAuthenticated={setIsAuthenticated} />}
-          />
-          <Route path="/add-book" element={<AddBookForm />} />
-          <Route path="/edit-book/:id" element={<EditBookForm />} />
-          <Route path="/books/:id" element={<BookDetail />} />
-        </Routes>
-      </div>
+      <Navbar />
+      <Routes>
+        {/* Home Page */}
+        <Route path="/" element={<Home />} />
+
+        {/* Book List Page */}
+        <Route path="/books" element={<BookList />} />
+
+        {/* Book Details Page */}
+        <Route path="/books/:id" element={<BookDetail />} />
+
+        {/* Add/Edit Book Form */}
+        <Route path="/edit-book/:id" element={<AddBookForm />} />
+        <Route path="/add-book" element={<AddBookForm />} />
+      </Routes>
     </Router>
   );
 }
